@@ -1,5 +1,5 @@
 import numpy as np
-class Bagging:
+class Custom_Bagging:
     def __init__(self, model, n):
         self.model = model
         self.n = n

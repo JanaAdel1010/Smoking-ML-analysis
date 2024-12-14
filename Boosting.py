@@ -1,5 +1,5 @@
 import numpy as np
-class Boosting:
+class Custom_Boosting:
     def __init__(self, model, n):
         self.model = model
         self.n = n
