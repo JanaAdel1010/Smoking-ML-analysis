@@ -1,22 +1,24 @@
 import numpy as np
+from sklearn.utils import resample
 class Custom_Bagging:
-    def __init__(self, model, n):
-        self.model = model
+    def __init__(self, base_model, n):
+        self.base_model = base_model
         self.n = n
         self.models = []
 
     def fit(self, X, y):
-        self.models = [] 
         for _ in range(self.n):
-            indices = np.random.choice(range(len(X)), size=len(X), replace=True)
-            X_sample = X[indices]
-            y_sample = y[indices]
-
-            model = self.model()
-            model.fit(X_sample, y_sample)
+            # Create a bootstrapped dataset
+            X_resampled, y_resampled = resample(X, y, random_state=None)
+            model = self.base_model()
+            model.fit(X_resampled, y_resampled)
             self.models.append(model)
 
     def predict(self, X):
-        predictions = np.array([model.predict(X) for model in self.models])
-        majority_votes = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=predictions)
-        return majority_votes
+        predictions = np.zeros((len(X), self.n))
+        for i, model in enumerate(self.models):
+            predictions[:, i] = model.predict(X)
+        
+        # Majority voting (for classification)
+        final_predictions = [np.bincount(predictions[i]).argmax() for i in range(len(X))]
+        return np.array(final_predictions)
