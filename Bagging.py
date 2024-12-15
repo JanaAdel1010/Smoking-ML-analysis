@@ -15,10 +15,15 @@ class Custom_Bagging:
             self.models.append(model)
 
     def predict(self, X):
-        predictions = np.zeros((len(X), self.n))
+        predictions = np.zeros((len(X), self.n), dtype=int)
+    
         for i, model in enumerate(self.models):
-            predictions[:, i] = model.predict(X)
+            model_predictions = model.predict(X)
         
-        # Majority voting (for classification)
+            if model_predictions.dtype != int:
+                model_predictions = np.round(model_predictions).astype(int)
+        
+            predictions[:, i] = model_predictions
+    
         final_predictions = [np.bincount(predictions[i]).argmax() for i in range(len(X))]
         return np.array(final_predictions)

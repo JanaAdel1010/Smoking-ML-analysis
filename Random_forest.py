@@ -38,9 +38,16 @@ class Custom_RandomForest:
             self.trees.append((tree, features))
 
     def predict(self, X):
-        predictions = np.zeros((X.shape[0], self.n_estimators))
+        predictions = np.zeros((X.shape[0], self.n_estimators), dtype=int)  
+    
         for i, (tree, features) in enumerate(self.trees):
-            predictions[:, i] = tree.predict(X[:, features])
+            model_predictions = tree.predict(X[:, features])
+        
+            if model_predictions.dtype != int:
+                model_predictions = np.round(model_predictions).astype(int)
+        
+            predictions[:, i] = model_predictions
 
         majority_vote = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=1, arr=predictions)
         return majority_vote
+
